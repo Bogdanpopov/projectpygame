@@ -97,18 +97,19 @@ def rules_show():
     """Screen with game's rules."""
     intro_text = ["The aim: stay in the game as long as possible.", "",
                   "Collect so many points as possible.", "",
-                  "The rate of appearance of 'tetramino' cubes increases with each level.", "",
+                  "The rate of appearance of 'tetramino' cubes increases", "",
+                  " with each level.", "",
                   "Do all your best to fill the raw.", "",
                   "You can turn the figures.", "",
                   "You can personally increase the speed of falling figures.", "",
                   "To pause the game press ESC."]
 
-    fon = load_image('tetris2.jpg')
+    fon = load_image('black.jpg')
     window.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 20
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color(32, 17, 240))
+        string_rendered = font.render(line, 1, pygame.Color(165, 155, 168))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
