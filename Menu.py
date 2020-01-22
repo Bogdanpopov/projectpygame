@@ -6,9 +6,9 @@ from pygame.locals import *
 
 # Initialization of pygame.
 pygame.init()
-# Creating gaming window 800*570.
+# Creating gaming window 1000 * 725.
 
-screen_size = width, height = (800, 570)
+screen_size = width, height = (1000, 725)
 window = pygame.display.set_mode(screen_size)
 # Creating window's title.
 pygame.display.set_caption('TETRIS')
@@ -193,7 +193,7 @@ class Board:
         self.board = [[0] * 11 for _ in range(11)]
         self.left = 0
         self.top = 0
-        self.cell_size = 25
+        self.cell_size = 30
 
     def set_view(self, left, top):
         self.left = left
@@ -202,10 +202,9 @@ class Board:
     def render(self):
         for i in range(10):
             for j in range(24):
-               pygame.draw.rect(window, pygame.Color("white"), (
-               self.left + self.cell_size * i, self.top + self.cell_size * j, self.cell_size, self.cell_size), 0)
-        pygame.draw.rect(window, pygame.Color("white"), (2, 2, 12 * self.cell_size, 26 * self.cell_size), 1)
-
+                pygame.draw.rect(window, pygame.Color("white"), (
+                    self.left + self.cell_size * i, self.top + self.cell_size * j, self.cell_size, self.cell_size), 1)
+                pygame.draw.rect(window, pygame.Color("white"), (2, 2, 10 * self.cell_size, 24 * self.cell_size), 1)
 
 # if __name__ == '__main__':
 def action():
@@ -222,6 +221,7 @@ def action():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                terminate()
         game.render()
         pygame.display.flip()
 
