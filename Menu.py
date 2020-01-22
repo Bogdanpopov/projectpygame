@@ -8,7 +8,7 @@ from pygame.locals import *
 pygame.init()
 # Creating gaming window 1000 * 725.
 
-screen_size = width, height = (1000, 725)
+screen_size = width, height = (600, 725)
 window = pygame.display.set_mode(screen_size)
 # Creating window's title.
 pygame.display.set_caption('TETRIS')
@@ -38,7 +38,7 @@ def load_image(name, colorkey=None):
         if colorkey is -1:
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey)
-    return image, image.get_rect()
+    return image
 
 
 def terminate():
@@ -48,7 +48,7 @@ def terminate():
 
 def start_screen():
     # loading background.
-    fon, b = load_image('tetris1.jpg')
+    fon = load_image('tetris1.jpg')
     # loading music.
     # pygame.mixer.music.load('data/zvuk-vstuplenija-v-tetrise-na-dendi.mp3')
     # pygame.mixer.music.set_volume(0.3)  # 1 -100%  громкости звука.
@@ -73,9 +73,9 @@ def start_screen():
                 check_quit_button(quit_btn, mouse_x, mouse_y)
 
         window.blit(fon, (0, 0))
-        play_button.draw_button(500, 200, "Play")
-        rules_button.draw_button(500, 300, "Rules")
-        quit_btn.draw_button(500, 400, 'Quit')
+        play_button.draw_button(160, 200, "Play")
+        rules_button.draw_button(160, 300, "Rules")
+        quit_btn.draw_button(160, 400, 'Quit')
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -103,7 +103,7 @@ def rules_show():
                   "You can personally increase the speed of falling figures.", "",
                   "To pause the game press ESC."]
 
-    fon, b = load_image('tetris2.jpg')
+    fon = load_image('tetris2.jpg')
     window.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 20
@@ -216,6 +216,7 @@ def action():
     # screen = pygame.display.set_mode(size)
     running = True
     game = Board(width, height)
+    window.fill((0, 0, 0))
 
     while running:
         for event in pygame.event.get():
