@@ -106,7 +106,7 @@ def rules_show():
 
     fon = load_image('black.jpg')
     window.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
+    font = pygame.font.Font('data/PingPong.ttf', 21)
     text_coord = 20
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color(165, 155, 168))
