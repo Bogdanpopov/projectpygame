@@ -119,26 +119,6 @@ horizontal_borders = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 
 
-config = {
-    'cell_size': 25,
-    'cols': 10,
-    'rows': 24,
-    'delay': 0,
-    'maxfps': 260,
-    'score': 0
-}
-
-colors = [
-    (0, 0, 0),
-    (255, 0, 0),
-    (0, 150, 0),
-    (0, 0, 255),
-    (255, 120, 0),
-    (255, 255, 0),
-    (180, 0, 255),
-    (0, 220, 220)
-]
-
 
 def load_image(name, colorkey=None):
     # adding the folder name to the image name.
@@ -206,13 +186,13 @@ def check_play_button(button, mouse_x, mouse_y):
 
 
 def check_rules_button(button, mouse_x, mouse_y):
-    """Calling the screen with game's rules."""
+    """displaying the screen with the game's rules."""
     if button.rect.collidepoint(mouse_x, mouse_y):
         rules_show()
 
 
 def rules_show():
-    """Screen with game's rules."""
+    """Screen with the game's rules."""
     intro_text = ["The aim: stay in the game as long as possible.", "",
                   "Collect so many points as possible.", "",
                   "The rate of appearance of 'tetramino' cubes increases", "",
@@ -284,7 +264,7 @@ def print_text(x, y, msg, font_color=(0, 0, 0), font_type='data/PingPong.ttf', f
 class Button:
     def __init__(self, width, heigth, screen):
         """
-        Initialization the buttons's attributes.
+        Initialization of the buttons's attributes.
         :param width: - buttons's width.
         :param height: -heigth.
         :param screen: -screen.
@@ -412,7 +392,7 @@ class TetrisApp(object):
         self.stone = None
         self.stone_x = None
         self.stone_y = None
-        self.board = None
+        self.board = Board(10, 24)
         self.gameover = False
         self.paused = False
         self.init_game()
@@ -431,7 +411,7 @@ class TetrisApp(object):
         print(*self.stones[-1], sep='\n')
         print()
 
-        if check_collision(self.board,
+        if self.board.check_collision(self.board.board,
                            self.stone,
                            (self.stone_x, self.stone_y)):
             self.gameover = True
@@ -443,7 +423,7 @@ class TetrisApp(object):
         """
         config['score'] = 0
         config['delay'] = 750
-        self.board = new_board()
+        self.board.new_board()
         self.new_stone()
 
     def center_msg(self, msg: str) -> None:  # App ?
@@ -491,7 +471,7 @@ class TetrisApp(object):
     def move(self, delta_x: int) -> None:
         if not self.gameover and not self.paused:  # checking whether game is paused or finished
             new_x = min(max(0, self.stone_x + delta_x), config['cols'] - len(self.stone[0]))
-            if not check_collision(self.board,
+            if not Board.check_collision(self.board,
                                    self.stone,
                                    (new_x, self.stone_y)):
                 self.stone_x = new_x
@@ -504,26 +484,36 @@ class TetrisApp(object):
     def drop(self) -> None:
         if not self.gameover and not self.paused:
             self.stone_y += 1
-            if check_collision(self.board, self.stone,
+            if self.board.check_collision(self.board.board, self.stone,
                                (self.stone_x, self.stone_y)):
-                self.board = join_matrixes(self.board, self.stone,
+                self.board.join_matrixes(self.board.board, self.stone,
                                            (self.stone_x, self.stone_y))
                 self.new_stone()
                 while True:
                     for i, row in enumerate(self.board[:-1]):
                         if 0 not in row:
-                            self.board = remove_row(self.board, i)
+                            self.board.remove_row(self.board, i)
                             break
                     else:
                         break
 
     def rotate_stone(self) -> None:
         if not self.gameover and not self.paused:
-            new_stone = rotate_clockwise(self.stone)
-            if not check_collision(self.board,
+            new_stone = self.rotate_clockwise(self.stone)
+            if not self.board.check_collision(self.board,
                                    new_stone,
                                    (self.stone_x, self.stone_y)):
                 self.stone = new_stone
+
+    def rotate_clockwise(self, shape: List[List]) -> List[List]:  # Tetris
+        """
+        Rotating the falling shape clockwise.
+        :param shape: current shape
+        :return: rotated shape
+        """
+        return [[shape[y][x]
+                 for y in range(len(shape))]
+                for x in range(len(shape[0]) - 1, -1, -1)]
 
     def toggle_pause(self) -> None:  # App ?
         self.paused = not self.paused
@@ -561,7 +551,7 @@ class TetrisApp(object):
             elif self.paused:
                 self.center_msg("Paused")
             else:  # if not paused and not finished the board will draw
-                self.draw_matrix(self.board, (0, 0))
+                self.draw_matrix(self.board.board, (0, 0))
                 self.draw_matrix(self.stone,
                                  (self.stone_x,
                                   self.stone_y))

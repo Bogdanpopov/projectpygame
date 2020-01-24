@@ -106,7 +106,7 @@ def rotate_clockwise(shape: List[List]) -> List[List]:  # Tetris
             for x in range(len(shape[0]) - 1, -1, -1)]
 
 
-def check_collision(board: List[List], shape: List[List], offset: Tuple) -> bool:  # Board
+def check_collision(board: List[List], shape: List[List], offset: Tuple) -> bool:  # Board (done)
     """
     Checking whether shape doesn't hit borders.
     :param board: current playing board
@@ -141,7 +141,7 @@ def remove_row(board: List[List[int]], row: int) -> List[List[int]]:  # Tetris A
 
 def join_matrixes(matrix_1: List[List[int]],
                   matrix_2: List[List[int]],
-                  matrix_2_off: Tuple[int, int]) -> List[List[int]]:  # Board
+                  matrix_2_off: Tuple[int, int]) -> List[List[int]]:  # Board (done)
     """
     Inserting one small matrix into the big matrix according to the given coordinates.
     :param matrix_1: big matrix
@@ -156,7 +156,7 @@ def join_matrixes(matrix_1: List[List[int]],
     return matrix_1
 
 
-def new_board() -> List[List[int]]:  # Board
+def new_board() -> List[List[int]]:  # Board (done)
     """
     Creating empty board for the new game.
     :return: new empty board
@@ -235,7 +235,7 @@ class TetrisApp(object):
                 self.width // 2 - msgim_center_x,
                 self.height // 2 - msgim_center_y + i * 22))
 
-    def draw_matrix(self, matrix: List[List[int]], offset: Tuple[int, int]) -> None:  # Board
+    def draw_matrix(self, matrix: List[List[int]], offset: Tuple[int, int]) -> None:  # Board (done)
         """
         Drawing the given matrix with the given offset
         :param matrix: matrix of integers which is needed to draw
