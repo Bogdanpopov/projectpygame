@@ -32,7 +32,7 @@ def load_image(name, colorkey=None):
         print('Cannot load:', name)
         raise SystemExit(message)
     image = image.convert()
-    # If second setting =-1: doing transparent.
+    # If second parameter =-1: doing transparent.
     # color from point 0,0.
     if colorkey is not None:
         if colorkey is -1:
@@ -167,7 +167,7 @@ class Button:
         """
         Initialization the buttons's attributes.
         :param width: - buttons's width.
-        :param heigth: -height.
+        :param height: -heigth.
         :param screen: -screen.
         """
         self.screen = screen
@@ -207,7 +207,7 @@ class Board:
                     self.left + self.cell_size * i, self.top + self.cell_size * j, self.cell_size, self.cell_size), 1)
                 pygame.draw.rect(window, pygame.Color("white"), (2, 2, 10 * self.cell_size, 24 * self.cell_size), 1)
 
-# if __name__ == '__main__':
+
 def action():
     pygame.init()
     width = 600
