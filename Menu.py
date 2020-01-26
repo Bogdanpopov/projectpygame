@@ -5,7 +5,7 @@ from typing import *
 
 from pygame.locals import *
 
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Very simple tetris implementation
@@ -58,7 +58,7 @@ import sys
 
 # The configuration
 config = {
-    'cell_size': 25,
+    'cell_size': 26,
     'cols': 10,
     'rows': 24,
     'delay': 0,
@@ -105,7 +105,7 @@ tetris_shapes = [
 pygame.init()
 # Creating gaming window 1000 * 725.
 
-screen_size = width, height = (600, 725)
+screen_size = width, height = (600, 674)
 window = pygame.display.set_mode(screen_size)
 # Creating window's title.
 pygame.display.set_caption('TETRIS')
@@ -117,7 +117,6 @@ clock = pygame.time.Clock()
 cycle = True
 horizontal_borders = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
-
 
 
 def load_image(name, colorkey=None):
@@ -234,15 +233,17 @@ def check_quit_button(button, mouse_x, mouse_y):
 
 
 def start_game():
-    global cycle
+    App = TetrisGame()
+    App.run()
+    # global cycle
     # Adding the music - only mp3.
     # pygame.mixer.music.load('data/space_game.mp3')
     # pygame.mixer.music.set_volume(0.3)  # 1 -100% sound
     # pygame.mixer.music.play(-1)  # play unlimited -1, either a number indicates the amount of payback cycles.
-    cycle = True
+    # cycle = True
 
-    while cycle:
-        action()
+    # while cycle:
+    #   action()
 
 
 def print_text(x, y, msg, font_color=(0, 0, 0), font_type='data/PingPong.ttf', font_size=50):
@@ -287,14 +288,14 @@ class Button:
 
 
 class Board:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self.board = [[0] * 11 for _ in range(11)]
+    def __init__(self, w, h):
+        self.width = w
+        self.height = h
+        self.board_ = [[0] * 11 for _ in range(11)]
         self.left = 0
         self.top = 0
         self.cell_size = 30
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        # self.screen = pygame.display.set_mode((self.width, self.height))
 
     def set_view(self, left, top):
         self.left = left
@@ -307,43 +308,66 @@ class Board:
                     self.left + self.cell_size * i, self.top + self.cell_size * j, self.cell_size, self.cell_size), 1)
                 pygame.draw.rect(window, pygame.Color("white"), (2, 2, 10 * self.cell_size, 24 * self.cell_size), 1)
 
-    def new_board(self) -> List[List[int]]:  # Board
+    def new_board(self) -> List[List[int]]:
         """
         Creating empty board for the new game.
         :return: new empty board
         """
-        self.board = [[0 for _ in range(config['cols'])]
-                 for _ in range(config['rows'])] + \
-                [[1 for _ in range(config['cols'])]]
-        return self.board
+        self.board_ = [[0 for _ in range(config['cols'])]
+                      for _ in range(config['rows'])] + \
+                     [[1 for _ in range(config['cols'])]]
+        return self.board_
 
-    def draw_matrix(self, matrix: List[List[int]], offset: Tuple[int, int]) -> None:  # Board
+    def draw_board(self) -> None:
         """
         Drawing the given matrix with the given offset
-        :param matrix: matrix of integers which is needed to draw
-        :param offset: matrix offset
         :return: None
         """
+        for y, row in enumerate(self.board_):
+            for x, val in enumerate(row):
+                # going through every cell and paint it
+                    pygame.draw.rect(
+                        window,
+                        colors[val],
+                        pygame.Rect(
+                            (x * (config['cell_size'] + 2)) + 2,
+                            (y * (config['cell_size'] + 2)) + 2,
+                            config['cell_size'],
+                            config['cell_size']), 0)
+
+    def draw_shape(self, shape, offset):
         off_x, off_y = offset
-        for y, row in enumerate(matrix):
+        for y, row in enumerate(shape):
             for x, val in enumerate(row):
                 # going through every cell and paint it
                 if val:
                     pygame.draw.rect(
-                        self.screen,
+                        window,
                         colors[val],
                         pygame.Rect(
-                            (off_x + x) *
-                            config['cell_size'],
-                            (off_y + y) *
-                            config['cell_size'],
+                            ((off_x + x) *
+                             (config['cell_size'] + 2)) + 2,
+                            ((off_y + y) *
+                             (config['cell_size'] + 2)) + 2,
                             config['cell_size'],
                             config['cell_size']), 0)
+
+    def remove_row(self, row: int) -> None:  # Tetris App
+        """
+        - Removing row which is full of blocks.
+        - Adding score.
+        - Adding empty row to the top of the board
+        :param row: row number
+        :return: None
+        """
+        del self.board_[row]
+        config['score'] += 100
+        self.board_ = [[0 for _ in range(config['cols'])]] + self.board_
 
     @staticmethod
     def join_matrixes(matrix_1: List[List[int]],
                       matrix_2: List[List[int]],
-                      matrix_2_off: Tuple[int, int]) -> List[List[int]]:  # Board
+                      matrix_2_off: Tuple[int, int]) -> List[List[int]]:
         """
         Inserting one small matrix into the big matrix according to the given coordinates.
         :param matrix_1: big matrix
@@ -358,7 +382,7 @@ class Board:
         return matrix_1
 
     @staticmethod
-    def check_collision(board: List[List], shape: List[List], offset: Tuple) -> bool:  # Board
+    def check_collision(board: List[List], shape: List[List], offset: Tuple) -> bool:
         """
         Checking whether shape doesn't hit borders.
         :param board: current playing board
@@ -377,19 +401,20 @@ class Board:
         return False
 
 
-class TetrisApp(object):
+class TetrisGame(object):
     def __init__(self):
         pygame.init()
         pygame.key.set_repeat(250, 25)
-        pygame.mouse.set_visible(False)               # We do not need mouse movement
+        pygame.mouse.set_visible(False)  # We do not need mouse movement
         pygame.event.set_blocked(pygame.MOUSEMOTION)  # events, so we block them.
 
         self.width = config['cell_size'] * config['cols']
         self.height = config['cell_size'] * config['rows']
 
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        # self.screen = pygame.display.set_mode((self.width, self.height))
         self.stones = deque([tetris_shapes[rand(len(tetris_shapes))]], maxlen=2)
         self.stone = None
+        self.next_stone = None
         self.stone_x = None
         self.stone_y = None
         self.board = Board(10, 24)
@@ -408,12 +433,11 @@ class TetrisApp(object):
         self.stone_x = int(config['cols'] / 2 - len(self.stone[0]) / 2)
         self.stone_y = 0
 
-        print(*self.stones[-1], sep='\n')
-        print()
+        self.next_stone = self.stones[-1]
 
-        if self.board.check_collision(self.board.board,
-                           self.stone,
-                           (self.stone_x, self.stone_y)):
+        if self.board.check_collision(self.board.board_,
+                                      self.stone,
+                                      (self.stone_x, self.stone_y)):
             self.gameover = True
 
     def init_game(self) -> None:
@@ -441,39 +465,16 @@ class TetrisApp(object):
             msgim_center_x //= 2
             msgim_center_y //= 2
 
-            self.screen.blit(msg_image, (
+            window.blit(msg_image, (
                 self.width // 2 - msgim_center_x,
                 self.height // 2 - msgim_center_y + i * 22))
-
-    def draw_matrix(self, matrix: List[List[int]], offset: Tuple[int, int]) -> None:  # Board (done)
-        """
-        Drawing the given matrix with the given offset
-        :param matrix: matrix of integers which is needed to draw
-        :param offset: matrix offset
-        :return: None
-        """
-        off_x, off_y = offset
-        for y, row in enumerate(matrix):
-            for x, val in enumerate(row):
-                # going through every cell and paint it
-                if val:
-                    pygame.draw.rect(
-                        self.screen,
-                        colors[val],
-                        pygame.Rect(
-                            (off_x + x) *
-                            config['cell_size'],
-                            (off_y + y) *
-                            config['cell_size'],
-                            config['cell_size'],
-                            config['cell_size']), 0)
 
     def move(self, delta_x: int) -> None:
         if not self.gameover and not self.paused:  # checking whether game is paused or finished
             new_x = min(max(0, self.stone_x + delta_x), config['cols'] - len(self.stone[0]))
-            if not Board.check_collision(self.board,
-                                   self.stone,
-                                   (new_x, self.stone_y)):
+            if not self.board.check_collision(self.board.board_,
+                                         self.stone,
+                                         (new_x, self.stone_y)):
                 self.stone_x = new_x
 
     def quit(self) -> None:  # App ?
@@ -484,15 +485,15 @@ class TetrisApp(object):
     def drop(self) -> None:
         if not self.gameover and not self.paused:
             self.stone_y += 1
-            if self.board.check_collision(self.board.board, self.stone,
-                               (self.stone_x, self.stone_y)):
-                self.board.join_matrixes(self.board.board, self.stone,
-                                           (self.stone_x, self.stone_y))
+            if self.board.check_collision(self.board.board_, self.stone,
+                                          (self.stone_x, self.stone_y)):
+                self.board.join_matrixes(self.board.board_, self.stone,
+                                         (self.stone_x, self.stone_y))
                 self.new_stone()
                 while True:
-                    for i, row in enumerate(self.board[:-1]):
+                    for i, row in enumerate(self.board.board_[:-1]):
                         if 0 not in row:
-                            self.board.remove_row(self.board, i)
+                            self.board.remove_row(i)
                             break
                     else:
                         break
@@ -500,9 +501,9 @@ class TetrisApp(object):
     def rotate_stone(self) -> None:
         if not self.gameover and not self.paused:
             new_stone = self.rotate_clockwise(self.stone)
-            if not self.board.check_collision(self.board,
-                                   new_stone,
-                                   (self.stone_x, self.stone_y)):
+            if not self.board.check_collision(self.board.board_,
+                                              new_stone,
+                                              (self.stone_x, self.stone_y)):
                 self.stone = new_stone
 
     def rotate_clockwise(self, shape: List[List]) -> List[List]:  # Tetris
@@ -523,6 +524,29 @@ class TetrisApp(object):
             self.init_game()
             self.gameover = False
 
+    def show_info(self):
+        text_score = pygame.font.Font(pygame.font.get_default_font(), 24) \
+            .render(f"SCORE: {config['score']}", False, (255, 255, 255))
+        window.blit(text_score, (400, 10))
+        text_shape = pygame.font.Font(pygame.font.get_default_font(), 24) \
+            .render(f"NEXT SHAPE:", False, (255, 255, 255))
+        window.blit(text_shape, (370, 100))
+
+        for y, row in enumerate(self.next_stone):
+            for x, val in enumerate(row):
+                # going through every cell and paint it
+                if val:
+                    pygame.draw.rect(
+                        window,
+                        colors[val],
+                        pygame.Rect(
+                            x * (config['cell_size'] + 2) + 420,
+                            y * (config['cell_size'] + 2) + 150,
+                            config['cell_size'],
+                            config['cell_size']), 0)
+
+
+
     def run(self) -> None:
         key_actions = {  # control key fuctions
             'ESCAPE': self.quit,
@@ -538,12 +562,10 @@ class TetrisApp(object):
         dont_burn_my_cpu = pygame.time.Clock()
         while 1:
             # prepapring board
-            self.screen.fill((0, 0, 0))
+            window.fill((0, 0, 0))
 
             # outputing the score
-            text_score = pygame.font.Font(pygame.font.get_default_font(), 15) \
-                .render(str(config['score']), False, (255, 255, 255))
-            self.screen.blit(text_score, (10, 10))
+
 
             # must have conditions, checking the game process
             if self.gameover:
@@ -551,10 +573,12 @@ class TetrisApp(object):
             elif self.paused:
                 self.center_msg("Paused")
             else:  # if not paused and not finished the board will draw
-                self.draw_matrix(self.board.board, (0, 0))
-                self.draw_matrix(self.stone,
-                                 (self.stone_x,
-                                  self.stone_y))
+                pygame.draw.rect(window, pygame.Color('white'), pygame.Rect(0, 0, 282, 1000))
+                self.board.draw_board()
+                self.board.draw_shape(self.stone, (self.stone_x,
+                                       self.stone_y))
+                self.show_info()
+
             pygame.display.update()
 
             # checking pressed buttons and calling key controls functions
@@ -569,27 +593,6 @@ class TetrisApp(object):
                             key_actions[key]()
 
             dont_burn_my_cpu.tick(config['maxfps'])
-
-
-
-def action():
-    pygame.init()
-    width = 600
-    height = 840
-    fps = 10
-    size = (width, height)
-    # screen = pygame.display.set_mode(size)
-    running = True
-    game = Board(width, height)
-    window.fill((0, 0, 0))
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                terminate()
-        game.render()
-        pygame.display.flip()
 
 
 def main():
