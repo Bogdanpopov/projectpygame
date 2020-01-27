@@ -1,14 +1,11 @@
-import pygame
 import os
-from pygame.sprite import Group
+from random import randrange as rand
+from collections import deque
 from typing import *
+import pygame
+import sys
 
-from pygame.locals import *
-
-# !/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# Very simple tetris implementation
 #
 # Control keys:
 # Down - Drop stone faster
@@ -21,43 +18,11 @@ from pygame.locals import *
 
 # Copyright (c) 2020 "Anatolii Trofimov & Bogdan Popov" <a3.trofimov@gmail.com popovbogdan21@yandex.ru>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-# ._____________________.
-# |                     |
-# |                     |
-# |                     |
-# |   ###               |
-# |   #                 |
-# |   #            #    |
-# |                #    |
-# | #     ####     ###  |
-# |## ## ###### ########|
-# |_____________________|
+# Permission is hereby granted, free of charge, to any person.
 
-from random import randrange as rand
-from collections import deque
-from typing import *
-import pygame
-import sys
 
 # The configuration
-config = {
+settings = {
     'cell_size': 26,
     'cols': 10,
     'rows': 24,
@@ -195,8 +160,8 @@ def rules_show():
     intro_text = ["The aim: stay in the game as long as possible.", "",
                   "Collect so many points as possible.", "",
                   "The rate of appearance of 'tetramino' cubes increases", "",
-                  " with each level.", "",
-                  "Do all your best to fill the raw.", "",
+                  "With each level.", "",
+                  "Do all your best to fill the row.", "",
                   "You can turn the figures.", "",
                   "You can personally increase the speed of falling figures.", "",
                   "To pause the game press ESC."]
@@ -232,21 +197,21 @@ def check_quit_button(button, mouse_x, mouse_y):
         terminate()
 
 
-def start_game():
+def start_game() -> None:
+    """
+    Starting the game.
+    :return: None
+    """
     App = TetrisGame()
     App.run()
-    # global cycle
     # Adding the music - only mp3.
     # pygame.mixer.music.load('data/space_game.mp3')
     # pygame.mixer.music.set_volume(0.3)  # 1 -100% sound
     # pygame.mixer.music.play(-1)  # play unlimited -1, either a number indicates the amount of payback cycles.
-    # cycle = True
-
-    # while cycle:
-    #   action()
 
 
-def print_text(x, y, msg, font_color=(0, 0, 0), font_type='data/PingPong.ttf', font_size=50):
+def print_text(x: int, y: int, msg: str, font_color: Tuple[int, int, int] = (0, 0, 0),
+               font_type='data/PingPong.ttf', font_size: int = 50) -> None:
     """
     Output the text from the button.
     :param x:  coordinate of starting the message on х.
@@ -263,79 +228,98 @@ def print_text(x, y, msg, font_color=(0, 0, 0), font_type='data/PingPong.ttf', f
 
 
 class Button:
-    def __init__(self, width, heigth, screen):
+    def __init__(self, w: int, h: int, screen) -> None:
         """
         Initialization of the buttons's attributes.
-        :param width: - buttons's width.
-        :param height: -heigth.
-        :param screen: -screen.
+        :param w: buttons's width
+        :param h: button's height
+        :param screen: screen where it should be placed
+        :return: None
         """
         self.screen = screen
         self.screen_rect = screen.get_rect()
 
         # Purpose of sizes and functions of the buttons.
-        self.width, self.heigth = width, heigth
+        self.width, self.height = w, h
         self.button_color = (0, 219, 106)
 
         self.text_color = (255, 255, 255)
         self.font = pygame.font.SysFont(None, 48)
 
-    def draw_button(self, x, y, msg):
-        # Displaying the buttons.
-        self.rect = pygame.Rect(x, y, self.width, self.heigth)
-        pygame.draw.rect(self.screen, self.button_color, self.rect)  # (x, y, self.width, self.heigth))
+        self.rect = None
+
+    def draw_button(self, x: int, y: int, msg: str) -> None:
+        """
+        Displaying the buttons with the given text.
+        :param x: coordinate x
+        :param y: coordinate y
+        :param msg: message to be shown on the button
+        :return: None
+        """
+        self.rect = pygame.Rect(x, y, self.width, self.height)
+        pygame.draw.rect(self.screen, self.button_color, self.rect)
         print_text(x + 90, y + 10, msg)
 
 
 class Board:
-    def __init__(self, w, h):
+    def __init__(self, w: int, h: int) -> None:
+        """
+        Initializing new board with diven number of cols(w) and rows(h).
+        :param w: width (nuber of cols)
+        :param h: height (number of rows)
+        :return: None
+        """
         self.width = w
         self.height = h
-        self.board_ = [[0] * 11 for _ in range(11)]
+        self.board_ = None
         self.left = 0
         self.top = 0
-        self.cell_size = 30
-        # self.screen = pygame.display.set_mode((self.width, self.height))
-
-    def set_view(self, left, top):
-        self.left = left
-        self.top = top
-
-    def render(self):
-        for i in range(10):
-            for j in range(24):
-                pygame.draw.rect(window, pygame.Color("white"), (
-                    self.left + self.cell_size * i, self.top + self.cell_size * j, self.cell_size, self.cell_size), 1)
-                pygame.draw.rect(window, pygame.Color("white"), (2, 2, 10 * self.cell_size, 24 * self.cell_size), 1)
 
     def new_board(self) -> List[List[int]]:
         """
         Creating empty board for the new game.
         :return: new empty board
         """
-        self.board_ = [[0 for _ in range(config['cols'])]
-                      for _ in range(config['rows'])] + \
-                     [[1 for _ in range(config['cols'])]]
+        self.board_ = [[0 for _ in range(settings['cols'])]
+                       for _ in range(settings['rows'])] + \
+                      [[1 for _ in range(settings['cols'])]]
         return self.board_
+
+    def remove_row(self, row: int) -> None:
+        """
+        - Removing row which is full of blocks.
+        - Adding empty row to the top of the board.
+        :param row: row number
+        :return: None
+        """
+        del self.board_[row]
+        self.board_ = [[0 for _ in range(settings['cols'])]] + self.board_
 
     def draw_board(self) -> None:
         """
-        Drawing the given matrix with the given offset
+        Drawing tetris board.
         :return: None
         """
         for y, row in enumerate(self.board_):
             for x, val in enumerate(row):
                 # going through every cell and paint it
-                    pygame.draw.rect(
-                        window,
-                        colors[val],
-                        pygame.Rect(
-                            (x * (config['cell_size'] + 2)) + 2,
-                            (y * (config['cell_size'] + 2)) + 2,
-                            config['cell_size'],
-                            config['cell_size']), 0)
+                pygame.draw.rect(
+                    window,
+                    colors[val],  # colors of different shapes
+                    pygame.Rect(
+                        (x * (settings['cell_size'] + 2)) + 2,
+                        (y * (settings['cell_size'] + 2)) + 2,
+                        settings['cell_size'],
+                        settings['cell_size']), 0)
 
-    def draw_shape(self, shape, offset):
+    @staticmethod
+    def draw_shape(shape: List[List[int]], offset: Tuple[int, int] = (0, 0)) -> None:
+        """
+        Drawing the falling stone on the board.
+        :param shape: Current falling stone
+        :param offset: x and y coordinates of the stone
+        :return:
+        """
         off_x, off_y = offset
         for y, row in enumerate(shape):
             for x, val in enumerate(row):
@@ -346,23 +330,11 @@ class Board:
                         colors[val],
                         pygame.Rect(
                             ((off_x + x) *
-                             (config['cell_size'] + 2)) + 2,
+                             (settings['cell_size'] + 2)) + 2,
                             ((off_y + y) *
-                             (config['cell_size'] + 2)) + 2,
-                            config['cell_size'],
-                            config['cell_size']), 0)
-
-    def remove_row(self, row: int) -> None:  # Tetris App
-        """
-        - Removing row which is full of blocks.
-        - Adding score.
-        - Adding empty row to the top of the board
-        :param row: row number
-        :return: None
-        """
-        del self.board_[row]
-        config['score'] += 100
-        self.board_ = [[0 for _ in range(config['cols'])]] + self.board_
+                             (settings['cell_size'] + 2)) + 2,
+                            settings['cell_size'],
+                            settings['cell_size']), 0)
 
     @staticmethod
     def join_matrixes(matrix_1: List[List[int]],
@@ -402,16 +374,23 @@ class Board:
 
 
 class TetrisGame(object):
-    def __init__(self):
+    def __init__(self) -> None:
+        """
+        Initializing our game:
+        - setting width and height
+        - disabling mouse
+        - initializing useful variables(self.paused: bool, self.gameover: bool, self.board: List[List[int]], etc.)
+        - starting the game
+        :return: None
+        """
         pygame.init()
         pygame.key.set_repeat(250, 25)
         pygame.mouse.set_visible(False)  # We do not need mouse movement
         pygame.event.set_blocked(pygame.MOUSEMOTION)  # events, so we block them.
 
-        self.width = config['cell_size'] * config['cols']
-        self.height = config['cell_size'] * config['rows']
+        self.width = settings['cell_size'] * settings['cols']
+        self.height = settings['cell_size'] * settings['rows']
 
-        # self.screen = pygame.display.set_mode((self.width, self.height))
         self.stones = deque([tetris_shapes[rand(len(tetris_shapes))]], maxlen=2)
         self.stone = None
         self.next_stone = None
@@ -430,7 +409,7 @@ class TetrisGame(object):
         self.stones.append(tetris_shapes[rand(len(tetris_shapes))])
 
         self.stone = self.stones.popleft()
-        self.stone_x = int(config['cols'] / 2 - len(self.stone[0]) / 2)
+        self.stone_x = int(settings['cols'] / 2 - len(self.stone[0]) / 2)
         self.stone_y = 0
 
         self.next_stone = self.stones[-1]
@@ -445,12 +424,13 @@ class TetrisGame(object):
         Resetting game (updating score and speed, making new board and new stones)
         :return: None
         """
-        config['score'] = 0
-        config['delay'] = 750
+        settings['score'] = 0
+        settings['delay'] = 750
         self.board.new_board()
         self.new_stone()
 
-    def center_msg(self, msg: str) -> None:  # App ?
+    @staticmethod
+    def center_msg(msg: str) -> None:
         """
         Displays given message in the center of the screen.
         :param msg: message
@@ -466,68 +446,102 @@ class TetrisGame(object):
             msgim_center_y //= 2
 
             window.blit(msg_image, (
-                self.width // 2 - msgim_center_x,
-                self.height // 2 - msgim_center_y + i * 22))
+                width // 2 - msgim_center_x,
+                height // 2 - msgim_center_y + i * 22))
 
     def move(self, delta_x: int) -> None:
+        """
+        Moving current falling shape.
+        :param delta_x: x offset to move shape
+        :return: None
+        """
         if not self.gameover and not self.paused:  # checking whether game is paused or finished
-            new_x = min(max(0, self.stone_x + delta_x), config['cols'] - len(self.stone[0]))
+            new_x = min(max(0, self.stone_x + delta_x), settings['cols'] - len(self.stone[0]))
             if not self.board.check_collision(self.board.board_,
-                                         self.stone,
-                                         (new_x, self.stone_y)):
+                                              self.stone,
+                                              (new_x, self.stone_y)):
                 self.stone_x = new_x
 
-    def quit(self) -> None:  # App ?
+    def quit(self) -> None:
+        """
+        Quitting the app.
+        :return: None
+        """
         self.center_msg("Exiting...")
         pygame.display.update()
         sys.exit()
 
     def drop(self) -> None:
+        """
+        - Dropping current stone down.
+        - Counting score and giving bonuses for extra speed and destroyed rows
+        :return: None
+        """
         if not self.gameover and not self.paused:
+            settings['score'] += 1
             self.stone_y += 1
             if self.board.check_collision(self.board.board_, self.stone,
-                                          (self.stone_x, self.stone_y)):
-                self.board.join_matrixes(self.board.board_, self.stone,
+                                          (self.stone_x, self.stone_y)):  # checking if we can move stone
+                self.board.join_matrixes(self.board.board_, self.stone,  # and join it if possible
                                          (self.stone_x, self.stone_y))
                 self.new_stone()
+                c = 0  # row destroyed counter
                 while True:
                     for i, row in enumerate(self.board.board_[:-1]):
                         if 0 not in row:
                             self.board.remove_row(i)
+                            c += 1
                             break
                     else:
+                        # counting scores and giving bonuses
+                        settings['score'] += c * 100
+                        if c == 2:
+                            settings['score'] += 50
+                        elif c == 3:
+                            settings['score'] += 100
+                        elif c == 4:
+                            settings['score'] += 200
                         break
 
     def rotate_stone(self) -> None:
+        """
+        Rotating falling stone clockwise.
+        :return: None
+        """
         if not self.gameover and not self.paused:
-            new_stone = self.rotate_clockwise(self.stone)
+            new_stone = [[self.stone[y][x]
+                          for y in range(len(self.stone))]
+                         for x in range(len(self.stone[0]) - 1, -1, -1)]      # rotating stone
+
             if not self.board.check_collision(self.board.board_,
                                               new_stone,
-                                              (self.stone_x, self.stone_y)):
+                                              (self.stone_x, self.stone_y)):  # checking if everything is okay
                 self.stone = new_stone
 
-    def rotate_clockwise(self, shape: List[List]) -> List[List]:  # Tetris
+    def toggle_pause(self) -> None:
         """
-        Rotating the falling shape clockwise.
-        :param shape: current shape
-        :return: rotated shape
+        Turning pause on and off.
+        :return: None
         """
-        return [[shape[y][x]
-                 for y in range(len(shape))]
-                for x in range(len(shape[0]) - 1, -1, -1)]
-
-    def toggle_pause(self) -> None:  # App ?
         self.paused = not self.paused
 
-    def start_game(self) -> None:  # App ?
+    def start_game(self) -> None:
+        """
+        Starting our game by initializing it.
+        :return: None
+        """
         if self.gameover:
             self.init_game()
             self.gameover = False
 
-    def show_info(self):
+    def show_info(self) -> None:
+        """
+        Showing important game information such as score and next stone.
+        :return: None
+        """
         text_score = pygame.font.Font(pygame.font.get_default_font(), 24) \
-            .render(f"SCORE: {config['score']}", False, (255, 255, 255))
-        window.blit(text_score, (400, 10))
+            .render(f"SCORE: {settings['score']}", False, (255, 255, 255))
+        window.blit(text_score, (380, 10))
         text_shape = pygame.font.Font(pygame.font.get_default_font(), 24) \
             .render(f"NEXT SHAPE:", False, (255, 255, 255))
         window.blit(text_shape, (370, 100))
@@ -540,14 +554,16 @@ class TetrisGame(object):
                         window,
                         colors[val],
                         pygame.Rect(
-                            x * (config['cell_size'] + 2) + 420,
-                            y * (config['cell_size'] + 2) + 150,
-                            config['cell_size'],
-                            config['cell_size']), 0)
-
-
+                            x * (settings['cell_size'] + 2) + 420,
+                            y * (settings['cell_size'] + 2) + 150,
+                            settings['cell_size'],
+                            settings['cell_size']), 0)
 
     def run(self) -> None:
+        """
+        The main game processor.
+        :return: None
+        """
         key_actions = {  # control key fuctions
             'ESCAPE': self.quit,
             'LEFT': lambda: self.move(-1),
@@ -558,25 +574,22 @@ class TetrisGame(object):
             'SPACE': self.start_game
         }
 
-        pygame.time.set_timer(pygame.USEREVENT + 1, config['delay'])
+        pygame.time.set_timer(pygame.USEREVENT + 1, settings['delay'])
         dont_burn_my_cpu = pygame.time.Clock()
         while 1:
             # prepapring board
             window.fill((0, 0, 0))
 
-            # outputing the score
-
-
             # must have conditions, checking the game process
             if self.gameover:
-                self.center_msg(f"Game Over!\nYou scored: {config['score']}!\nPress space to continue...")
+                self.center_msg(f"Game Over!\nYou scored: {settings['score']}!\nPress space to continue...")
             elif self.paused:
                 self.center_msg("Paused")
             else:  # if not paused and not finished the board will draw
                 pygame.draw.rect(window, pygame.Color('white'), pygame.Rect(0, 0, 282, 1000))
                 self.board.draw_board()
                 self.board.draw_shape(self.stone, (self.stone_x,
-                                       self.stone_y))
+                                                   self.stone_y))
                 self.show_info()
 
             pygame.display.update()
@@ -592,7 +605,7 @@ class TetrisGame(object):
                         if event.key == eval("pygame.K_" + key):
                             key_actions[key]()
 
-            dont_burn_my_cpu.tick(config['maxfps'])
+            dont_burn_my_cpu.tick(settings['maxfps'])
 
 
 def main():
