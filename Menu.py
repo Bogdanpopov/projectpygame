@@ -26,11 +26,24 @@ settings = {
     'cell_size': 26,
     'cols': 10,
     'rows': 24,
-    'delay': 0,
-    'maxfps': 260,
+    'delay': 10,
+    'maxfps': 6000,
     'score': 0
 }
 
+speed_levels = {
+    10000: (75, 100),
+    9000: (100, 100),
+    8000: (125, 100),
+    7000: (150, 100),
+    6000: (200, 150),
+    5000: (250, 150),
+    4000: (350, 1750),
+    3000: (450, 175),
+    2000: (550, 200),
+    1000: (650, 225),
+    500:  (700, 250)
+}
 # Define the colors of the single shapes
 colors = [
     (0, 0, 0),
@@ -373,7 +386,7 @@ class Board:
         return False
 
 
-class TetrisGame(object):
+class TetrisGame :
     def __init__(self) -> None:
         """
         Initializing our game:
@@ -400,6 +413,7 @@ class TetrisGame(object):
         self.gameover = False
         self.paused = False
         self.init_game()
+        self.speed = speed_levels.copy()
 
     def new_stone(self) -> None:
         """
@@ -426,6 +440,7 @@ class TetrisGame(object):
         """
         settings['score'] = 0
         settings['delay'] = 750
+        self.speed = speed_levels.copy()
         self.board.new_board()
         self.new_stone()
 
@@ -479,6 +494,15 @@ class TetrisGame(object):
         """
         if not self.gameover and not self.paused:
             settings['score'] += 1
+            for x, (s, d) in self.speed.items():
+                if settings['score'] >= x:
+                    pygame.time.set_timer(pygame.USEREVENT + 1, 0)
+                    pygame.time.set_timer(pygame.USEREVENT + 1, s)
+                    pygame.key.set_repeat(d, 25)
+                    del self.speed[x]
+                    break
+
+
             self.stone_y += 1
             if self.board.check_collision(self.board.board_, self.stone,
                                           (self.stone_x, self.stone_y)):  # checking if we can move stone
@@ -487,6 +511,7 @@ class TetrisGame(object):
                 self.new_stone()
                 c = 0  # row destroyed counter
                 while True:
+
                     for i, row in enumerate(self.board.board_[:-1]):
                         if 0 not in row:
                             self.board.remove_row(i)
@@ -501,6 +526,7 @@ class TetrisGame(object):
                             settings['score'] += 100
                         elif c == 4:
                             settings['score'] += 200
+
                         break
 
     def rotate_stone(self) -> None:
@@ -574,8 +600,9 @@ class TetrisGame(object):
             'SPACE': self.start_game
         }
 
-        pygame.time.set_timer(pygame.USEREVENT + 1, settings['delay'])
+
         dont_burn_my_cpu = pygame.time.Clock()
+        pygame.time.set_timer(pygame.USEREVENT + 1, settings['delay'])
         while 1:
             # prepapring board
             window.fill((0, 0, 0))
@@ -593,6 +620,7 @@ class TetrisGame(object):
                 self.show_info()
 
             pygame.display.update()
+
 
             # checking pressed buttons and calling key controls functions
             for event in pygame.event.get():
