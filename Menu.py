@@ -218,7 +218,7 @@ def start_game() -> None:
     app = TetrisGame()
     app.run()
     # Adding the music - only mp3.
-    pygame.mixer.music.load('data/')
+    pygame.mixer.music.load('data/zvuk-tetrisa-na-konsoli.mp3')
     pygame.mixer.music.set_volume(0.3)  # 1 -100% sound
     pygame.mixer.music.play(-1)  # play unlimited -1, either a number indicates the amount of payback cycles.
 
