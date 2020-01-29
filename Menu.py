@@ -36,8 +36,8 @@ speed_levels = {
     9000: (100, 100),
     8000: (125, 100),
     7000: (150, 100),
-    6000: (200, 150),
-    5000: (250, 150),
+    6000: (200, 175),
+    5000: (250, 175),
     4000: (350, 175),
     3000: (450, 175),
     2000: (550, 200),
@@ -125,9 +125,9 @@ def start_screen():
     # loading background.
     fon = load_image('tetris1.jpg')
     # loading music.
-    # pygame.mixer.music.load('data/zvuk-vstuplenija-v-tetrise-na-dendi.mp3')
-    # pygame.mixer.music.set_volume(0.3)  # 1 -100%  громкости звука.
-    # pygame.mixer.music.play(-1)  # играть бесконечно -1.
+    pygame.mixer.music.load('data/zvuk-vstuplenija-v-tetrise-na-dendi.mp3')
+    pygame.mixer.music.set_volume(0.3)  # 1 -100%  громкости звука.
+    pygame.mixer.music.play(-1)  # играть бесконечно -1.
 
     # Creation the button 'Play'.
     play_button = Button(280, 70, window)
@@ -445,6 +445,7 @@ class TetrisGame:
         self.board.new_board()
         self.new_stone()
         self.run_b = True
+        pygame.key.set_repeat(250, 25)
 
     @staticmethod
     def center_msg(msg: str) -> None:
