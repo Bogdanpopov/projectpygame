@@ -16,7 +16,7 @@ import sys
 #
 # Have fun!
 
-# Copyright (c) 2020 "Anatolii Trofimov & Bogdan Popov" <a3.trofimov@gmail.com popovbogdan21@yandex.ru>
+# Copyright (c) 2020 "Anatolii Trofimov & Bogban Popovich" <a3.trofimov@gmail.com popovbogdan21@yandex.ru>
 #
 # Permission is hereby granted, free of charge, to any person.
 
@@ -38,11 +38,11 @@ speed_levels = {
     7000: (150, 100),
     6000: (200, 150),
     5000: (250, 150),
-    4000: (350, 1750),
+    4000: (350, 175),
     3000: (450, 175),
     2000: (550, 200),
     1000: (650, 225),
-    500:  (700, 250)
+    500: (700, 250)
 }
 # Define the colors of the single shapes
 colors = [
@@ -215,8 +215,8 @@ def start_game() -> None:
     Starting the game.
     :return: None
     """
-    App = TetrisGame()
-    App.run()
+    app = TetrisGame()
+    app.run()
     # Adding the music - only mp3.
     # pygame.mixer.music.load('data/space_game.mp3')
     # pygame.mixer.music.set_volume(0.3)  # 1 -100% sound
@@ -386,7 +386,7 @@ class Board:
         return False
 
 
-class TetrisGame :
+class TetrisGame:
     def __init__(self) -> None:
         """
         Initializing our game:
@@ -414,6 +414,7 @@ class TetrisGame :
         self.paused = False
         self.init_game()
         self.speed = speed_levels.copy()
+        self.run_b = True
 
     def new_stone(self) -> None:
         """
@@ -443,6 +444,7 @@ class TetrisGame :
         self.speed = speed_levels.copy()
         self.board.new_board()
         self.new_stone()
+        self.run_b = True
 
     @staticmethod
     def center_msg(msg: str) -> None:
@@ -484,7 +486,8 @@ class TetrisGame :
         """
         self.center_msg("Exiting...")
         pygame.display.update()
-        sys.exit()
+        self.run_b = False
+        pygame.mouse.set_visible(True)
 
     def drop(self) -> None:
         """
@@ -501,7 +504,6 @@ class TetrisGame :
                     pygame.key.set_repeat(d, 25)
                     del self.speed[x]
                     break
-
 
             self.stone_y += 1
             if self.board.check_collision(self.board.board_, self.stone,
@@ -537,7 +539,7 @@ class TetrisGame :
         if not self.gameover and not self.paused:
             new_stone = [[self.stone[y][x]
                           for y in range(len(self.stone))]
-                         for x in range(len(self.stone[0]) - 1, -1, -1)]      # rotating stone
+                         for x in range(len(self.stone[0]) - 1, -1, -1)]  # rotating stone
 
             if not self.board.check_collision(self.board.board_,
                                               new_stone,
@@ -559,6 +561,7 @@ class TetrisGame :
         if self.gameover:
             self.init_game()
             self.gameover = False
+            self.run_b = True
 
     def show_info(self) -> None:
         """
@@ -600,10 +603,9 @@ class TetrisGame :
             'SPACE': self.start_game
         }
 
-
         dont_burn_my_cpu = pygame.time.Clock()
         pygame.time.set_timer(pygame.USEREVENT + 1, settings['delay'])
-        while 1:
+        while self.run_b:
             # prepapring board
             window.fill((0, 0, 0))
 
@@ -620,7 +622,6 @@ class TetrisGame :
                 self.show_info()
 
             pygame.display.update()
-
 
             # checking pressed buttons and calling key controls functions
             for event in pygame.event.get():
